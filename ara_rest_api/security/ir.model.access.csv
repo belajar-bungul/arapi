@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ara_rest_api_token_system,access.ara.rest.api.token.system,model_ara_rest_api_token,base.group_system,1,1,1,1
+access_ara_rest_api_access_system,access.ara.rest.api.access.system,model_ara_rest_api_access,base.group_system,1,1,1,1
+access_ara_rest_api_token_wizard_system,access.ara.rest.api.token.wizard.system,model_ara_rest_api_token_wizard,base.group_system,1,1,1,1

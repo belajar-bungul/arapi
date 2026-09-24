@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+            name="description"
+            content="ARA REST API for Odoo 19 — A secure, token-based REST API for selected Odoo models. Full CRUD support, token expiry, field allowlists, and record rules enforcement."
+        />
+        <title>ARA REST API for Odoo 19</title>
+
+        <!-- Bootstrap 5.3 CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <!-- Bootstrap Icons -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+            rel="stylesheet"
+        />
+        <!-- Google Fonts: Inter -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+
+        <style>
+            :root {
+                --odoo: #714b67;
+                --odoo-hover: #5d3e55;
+                --odoo-dark: #3c2437;
+                --odoo-soft: #f8f1f6;
+                --bg-light: #f8fafc;
+                --card-bg: #ffffff;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            /* PAKSA WARNA TEKS HITAM PEKAT DAN KONTRAS TINGGI */
+            body {
+                font-family: "Inter", -apple-system, sans-serif;
+                background-color: var(--bg-light);
+                color: #000000 !important;
+            }
+
+            p, span, div, h1, h2, h3, h4, h5, h6, li, a, td, th {
+                color: #000000;
+            }
+
+            .text-secondary, .text-muted {
+                color: #000000 !important;
+            }
+
+            .text-odoo {
+                color: var(--odoo) !important;
+            }
+            .bg-odoo {
+                background-color: var(--odoo) !important;
+            }
+
+            .btn-odoo {
+                background-color: var(--odoo);
+                color: #ffffff !important;
+                border: none;
+                font-weight: 800;
+                padding: 0.85rem 1.6rem;
+                border-radius: 10px;
+                transition: all 0.2s ease;
+            }
+            .btn-odoo:hover {
+                background-color: var(--odoo-hover);
+                color: #ffffff !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(113, 75, 103, 0.25);
+            }
+
+            .btn-outline-odoo {
+                background-color: #ffffff;
+                border: 2px solid #000000;
+                color: #000000 !important;
+                font-weight: 800;
+                padding: 0.85rem 1.5rem;
+                border-radius: 10px;
+                transition: all 0.2s ease;
+            }
+            .btn-outline-odoo:hover {
+                border-color: var(--odoo);
+                color: var(--odoo) !important;
+                transform: translateY(-2px);
+            }
+
+            .badge-odoo-vivid {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background-color: var(--odoo);
+                color: #ffffff !important;
+                border-radius: 999px;
+                padding: 0.45rem 1rem;
+                font-size: 0.8rem;
+                font-weight: 800;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+            }
+
+            /* Card Styling */
+            .feature-card {
+                background: var(--card-bg);
+                border: 2px solid #000000;
+                border-radius: 16px;
+                padding: 1.75rem;
+                height: 100%;
+                transition: all 0.25s ease;
+            }
+            .feature-card:hover {
+                border-color: var(--odoo);
+                box-shadow: 0 12px 30px rgba(113, 75, 103, 0.15);
+                transform: translateY(-3px);
+            }
+
+            .step-number {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background-color: var(--odoo);
+                color: #ffffff !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 900;
+                font-size: 1rem;
+            }
+
+            .stat-box {
+                border: 2px solid #000000;
+                border-radius: 14px;
+                background-color: #ffffff;
+                padding: 1rem 1.25rem;
+                flex: 1;
+                min-width: 140px;
+            }
+
+            /* Code Snippet Styles */
+            .code-block {
+                background-color: #0f172a;
+                color: #ffffff !important;
+                border-radius: 12px;
+                padding: 1.25rem;
+                overflow-x: auto;
+                font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+                font-size: 0.9rem;
+                line-height: 1.6;
+                border: 2px solid #000000;
+            }
+            .code-block .token-key {
+                color: #38bdf8 !important;
+                font-weight: 800;
+            }
+            .code-block .token-str {
+                color: #4ade80 !important;
+                font-weight: 700;
+            }
+            .code-block .token-num {
+                color: #facc15 !important;
+                font-weight: 800;
+            }
+            .code-block .token-bool {
+                color: #f472b6 !important;
+                font-weight: 800;
+            }
+
+            .quote-callout {
+                border-left: 6px solid var(--odoo);
+                background-color: #ffffff;
+                border: 2px solid #000000;
+                border-left-width: 6px;
+                padding: 1.25rem;
+                border-radius: 0 12px 12px 0;
+            }
+
+            footer code {
+                background-color: rgba(255, 255, 255, 0.2);
+                color: #ffffff !important;
+                padding: 0.2rem 0.5rem;
+                border-radius: 4px;
+            }
+        </style>
+    </head>
+    <body>
+
+
+        <main id="top">
+            <!-- HERO SECTION -->
+            <section class="py-5 py-lg-6">
+                <div class="container-xl">
+                    <div class="row align-items-center g-5">
+                        <div class="col-lg-6">
+                       
+                            <h1 class="display-4 fw-black text-black mb-3" style="letter-spacing: -0.04em; line-height: 1.1; font-weight: 900;">
+                                Secure, Token-Based <span class="text-odoo">REST API</span> for Odoo
+                            </h1>
+                            <p class="lead text-black mb-4 fs-5 fw-medium">
+                                Access selected Odoo models securely with bearer tokens. Enforces model allowlists, user permissions, Odoo record rules, field-level access, and token expiration out of the box.
+                            </p>
+                            
+                            <div class="d-flex flex-wrap gap-3 mb-4">
+                                <a href="#setup" class="btn btn-odoo shadow-sm">Setup Guide</a>
+                                <a href="#endpoints" class="btn btn-outline-odoo">API Reference</a>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="stat-box">
+                                    <div class="fw-extrabold fs-5 text-odoo">Token Auth</div>
+                                    <div class="small fw-bold text-black">Bearer Token Header</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="fw-extrabold fs-5 text-odoo">Full CRUD</div>
+                                    <div class="small fw-bold text-black">GET, POST, PUT, DELETE</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="fw-extrabold fs-5 text-odoo">Odoo</div>
+                                    <div class="small fw-bold text-black">Native Integration</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HERO IMAGE EXA.PNG -->
+                        <div class="col-lg-6">
+                            <div class="bg-white p-2 rounded-4 shadow-sm border border-2 border-dark text-center">
+                                <img
+                                    src="/exa.png"
+                                    alt="ARA REST API for Odoo 19 Interface"
+                                    class="img-fluid rounded-3 border border-1 border-dark"
+                                    onerror="this.onerror=null; this.src='exa.png';"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETUP SECTION -->
+            <section id="setup" class="py-5 py-lg-6 bg-white border-top border-bottom border-2 border-dark">
+                <div class="container-xl">
+                    <div class="mb-5 text-center">
+                        <span class="badge-odoo-vivid mb-2">Installation &amp; Setup</span>
+                        <h2 class="fw-black display-6 text-black mt-2 mb-3" style="letter-spacing: -0.03em; font-weight: 900;">
+                            Get up and running in 6 simple steps.
+                        </h2>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-number">1</div>
+                                    <h3 class="h5 mb-0 fw-black text-black">Add Addon Path</h3>
+                                </div>
+                                <p class="mb-0 text-black small fw-medium">
+                                    Add the module parent folder to your Odoo configuration file under <code class="text-odoo fw-bold">addons_path</code>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-number">2</div>
+                                    <h3 class="h5 mb-0 fw-black text-black">Update Apps List</h3>
+                                </div>
+                                <p class="mb-0 text-black small fw-medium">
+                                    Activate Developer Mode in Odoo 19 and click <strong>Apps &gt; Update Apps List</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-number">3</div>
+                                    <h3 class="h5 mb-0 fw-black text-black">Install Module</h3>
+                                </div>
+                                <p class="mb-0 text-black small fw-medium">
+                                    Search for <strong>ARA REST API</strong> (<code class="text-odoo fw-bold">ara_rest_api</code>) in the Apps menu and click Install.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-number">4</div>
+                                    <h3 class="h5 mb-0 fw-black text-black">Open Token Settings</h3>
+                                </div>
+                                <p class="mb-0 text-black small fw-medium">
+                                    Navigate to <strong>Settings &gt; REST API &gt; API Tokens</strong> inside your Odoo backend.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-number">5</div>
+                                    <h3 class="h5 mb-0 fw-black text-black">Configure Access</h3>
+                                </div>
+                                <p class="mb-0 text-black small fw-medium">
+                                    Create a token, assign it to a designated Odoo user, and configure the list of allowed models and permissions.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="step-number">6</div>
+                                    <h3 class="h5 mb-0 fw-black text-black">Generate Secret Token</h3>
+                                </div>
+                                <p class="mb-0 text-black small fw-medium">
+                                    Generate the token secret and store it in your secret manager. <em>Note: The full secret value is shown only once!</em>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AUTHENTICATION SECTION -->
+            <section class="py-5 py-lg-6">
+                <div class="container-xl">
+                    <div class="row align-items-center g-4">
+                        <div class="col-lg-5">
+                            <span class="badge-odoo-vivid mb-2">Authentication</span>
+                            <h2 class="fw-black display-6 text-black mt-2 mb-3" style="font-weight: 900;">
+                                Header-Based Bearer Token Auth
+                            </h2>
+                            <p class="text-black fw-medium mb-0">
+                                Send your generated token in the HTTP Authorization header with every API request. Requests without a valid token header will be rejected immediately.
+                            </p>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="code-block">
+                                <div class="small fw-bold text-success mb-2">// HTTP Request Header Example</div>
+                                <span class="token-key">Authorization</span>: <span class="token-str">Bearer ara_your_token_value_here</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ENDPOINTS SECTION -->
+            <section id="endpoints" class="py-5 py-lg-6 bg-white border-top border-bottom border-2 border-dark">
+                <div class="container-xl">
+                    <div class="mb-5">
+                        <span class="badge-odoo-vivid mb-2">API Reference</span>
+                        <h2 class="fw-black display-6 text-black mt-2 mb-2" style="font-weight: 900;">
+                            Available REST Endpoints
+                        </h2>
+                        <p class="text-black fw-bold">Base Path: <code class="text-odoo fw-bold fs-5">/api/v1</code></p>
+                    </div>
+
+                    <!-- Endpoints Table -->
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered border-dark align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 120px;">Method</th>
+                                    <th>Endpoint Path</th>
+                                    <th>Description &amp; Behavior</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-primary fs-6">GET</span></td>
+                                    <td><code>/api/v1/models</code></td>
+                                    <td class="fw-medium">Lists all Odoo models authorized for the provided token.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary fs-6">GET</span></td>
+                                    <td><code>/api/v1/&lt;model&gt;</code></td>
+                                    <td class="fw-medium">Lists records with optional domain filters, field selection, and pagination limits.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-primary fs-6">GET</span></td>
+                                    <td><code>/api/v1/&lt;model&gt;/&lt;id&gt;</code></td>
+                                    <td class="fw-medium">Retrieves detailed fields for a single record by ID.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-success fs-6">POST</span></td>
+                                    <td><code>/api/v1/&lt;model&gt;</code></td>
+                                    <td class="fw-medium">Creates a new record (requires active <strong>Create</strong> permission on token).</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark fs-6">PUT / PATCH</span></td>
+                                    <td><code>/api/v1/&lt;model&gt;/&lt;id&gt;</code></td>
+                                    <td class="fw-medium">Updates an existing record (requires active <strong>Write</strong> permission on token).</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger fs-6">DELETE</span></td>
+                                    <td><code>/api/v1/&lt;model&gt;/&lt;id&gt;</code></td>
+                                    <td class="fw-medium">Deletes a record by ID (requires active <strong>Delete</strong> permission on token).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Example Query Callout -->
+                    <div class="quote-callout mt-4">
+                        <h3 class="h6 text-uppercase fw-extrabold text-black mb-2"><i class="bi bi-search"></i> Example GET List Request with Filters &amp; Pagination</h3>
+                        <div class="code-block">
+                            <span class="token-key">GET</span> /api/v1/res.partner?fields=name,email&amp;limit=20&amp;offset=0&amp;domain=[["is_company","=",true]]
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECURITY SECTION -->
+            <section id="security" class="py-5 py-lg-6">
+                <div class="container-xl">
+                    <div class="mb-5 text-center">
+                        <span class="badge-odoo-vivid mb-2">Security Engine</span>
+                        <h2 class="fw-black display-6 text-black mt-2 mb-2" style="font-weight: 900;">
+                            Multi-Layered Protection
+                        </h2>
+                        <p class="text-black fw-medium">Never compromise your core Odoo ERP security.</p>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="feature-icon mb-3"><i class="bi bi-key-fill"></i></div>
+                                <h3 class="h5 fw-black text-black">Token Allowlist</h3>
+                                <p class="text-black small mb-0 fw-medium">
+                                    Explicitly specify which Odoo models can be accessed per token. Unlisted models return access errors.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="feature-icon mb-3"><i class="bi bi-person-badge-fill"></i></div>
+                                <h3 class="h5 fw-black text-black">Odoo User Permissions</h3>
+                                <p class="text-black small mb-0 fw-medium">
+                                    Requests execute in the context of the assigned Odoo user, respecting security groups and ACLs.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="feature-icon mb-3"><i class="bi bi-shield-lock-fill"></i></div>
+                                <h3 class="h5 fw-black text-black">Record Rules</h3>
+                                <p class="text-black small mb-0 fw-medium">
+                                    Native Odoo multi-company and Record Rules automatically filter data output per request.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="feature-icon mb-3"><i class="bi bi-list-check"></i></div>
+                                <h3 class="h5 fw-black text-black">Field Allowlists</h3>
+                                <p class="text-black small mb-0 fw-medium">
+                                    Restrict readable and writable fields to prevent exposing sensitive attributes (e.g. passwords, secrets).
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="feature-icon mb-3"><i class="bi bi-funnel-fill"></i></div>
+                                <h3 class="h5 fw-black text-black">Domain &amp; Limit Constraints</h3>
+                                <p class="text-black small mb-0 fw-medium">
+                                    Enforce forced domain constraints and maximum query pagination limits to prevent server memory overload.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="feature-card">
+                                <div class="feature-icon mb-3"><i class="bi bi-clock-history"></i></div>
+                                <h3 class="h5 fw-black text-black">Token Expiration</h3>
+                                <p class="text-black small mb-0 fw-medium">
+                                    Set strict expiration dates on tokens for temporary integrations or partner access revocation.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RESPONSE FORMAT SECTION -->
+            <section id="responses" class="py-5 py-lg-6 bg-white border-top border-bottom border-2 border-dark">
+                <div class="container-xl">
+                    <div class="mb-5">
+                        <span class="badge-odoo-vivid mb-2">JSON Specifications</span>
+                        <h2 class="fw-black display-6 text-black mt-2 mb-2" style="font-weight: 900;">
+                            Standardized Response Structure
+                        </h2>
+                        <p class="text-black fw-bold">Predictable JSON schemas for easier client-side integration.</p>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Success Response -->
+                        <div class="col-lg-6">
+                            <div class="feature-card">
+                                <h3 class="h6 text-uppercase fw-extrabold text-success mb-3">
+                                    <i class="bi bi-check-circle-fill"></i> Successful Response Format
+                                </h3>
+                                <div class="code-block">
+                                    {<br />
+                                    &nbsp;&nbsp;<span class="token-key">"success"</span>: <span class="token-bool">true</span>,<br />
+                                    &nbsp;&nbsp;<span class="token-key">"data"</span>: [<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;{<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="token-key">"id"</span>: <span class="token-num">1</span>,<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="token-key">"name"</span>: <span class="token-str">"Your Company"</span>,<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="token-key">"email"</span>: <span class="token-str">"info@yourcompany.com"</span><br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;}<br />
+                                    &nbsp;&nbsp;]<br />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error Response -->
+                        <div class="col-lg-6">
+                            <div class="feature-card">
+                                <h3 class="h6 text-uppercase fw-extrabold text-danger mb-3">
+                                    <i class="bi bi-x-circle-fill"></i> Error Response Format
+                                </h3>
+                                <div class="code-block">
+                                    {<br />
+                                    &nbsp;&nbsp;<span class="token-key">"success"</span>: <span class="token-bool">false</span>,<br />
+                                    &nbsp;&nbsp;<span class="token-key">"error"</span>: {<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="token-key">"code"</span>: <span class="token-str">"invalid_token"</span>,<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="token-key">"message"</span>: <span class="token-str">"Token is invalid or expired."</span><br />
+                                    &nbsp;&nbsp;}<br />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CALL TO ACTION BANNER -->
+            <section id="cta" class="py-5 py-lg-6 bg-odoo text-white">
+                <div class="container-xl">
+                    <div class="row align-items-center g-4">
+                        <div class="col-lg-8">
+                            <h2 class="fw-extrabold display-6 mb-2 text-white" style="font-weight: 900;">
+                                Ready to integrate Odoo with your ecosystem?
+                            </h2>
+                            <p class="mb-0 text-white fw-medium fs-6">
+                                Enable fast, secure, and controlled REST API communication between Odoo 19 and your external applications today.
+                            </p>
+                        </div>
+      
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="py-4 bg-dark text-white border-top border-secondary small">
+            <div class="container-xl">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                    <span class="fw-bold text-white">ARA REST API for Odoo</span>
+                    <span class="text-white fw-medium">Technical module name: <code>ara_rest_api</code></span>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Bootstrap 5.3 JS Bundle -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

@@ -1,0 +1,103 @@
+<odoo>
+    <record id="view_rest_token_list" model="ir.ui.view">
+        <field name="name">ara.rest.api.token.list</field>
+        <field name="model">ara.rest.api.token</field>
+        <field name="arch" type="xml">
+            <list string="API Tokens">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="token_prefix"/>
+                <field name="token_count" string="Models"/>
+                <field name="last_used_at"/>
+                <field name="expires_at"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_rest_token_form" model="ir.ui.view">
+        <field name="name">ara.rest.api.token.form</field>
+        <field name="model">ara.rest.api.token</field>
+        <field name="arch" type="xml">
+            <form string="REST API Token">
+                <header>
+                    <button name="action_generate_token" type="object" string="Generate New Token" class="btn-primary" icon="fa-key"/>
+                    <button name="action_revoke" type="object" string="Revoke" icon="fa-ban" confirm="Revoke this token?" invisible="not active"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><label for="name"/><h1><field name="name" placeholder="Integration token"/></h1></div>
+                    <group>
+                        <group string="Owner">
+                            <field name="user_id" options="{'no_create': True}"/>
+                            <field name="expires_at"/>
+                        </group>
+                        <group string="Token status">
+                            <field name="token_prefix" readonly="1"/>
+                            <field name="last_used_at" readonly="1"/>
+                            <field name="token_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Allowed models"/>
+                    <field name="access_line_ids">
+                        <list editable="bottom">
+                            <field name="model_id" options="{'no_create': True}"/>
+                            <field name="can_read"/>
+                            <field name="can_create"/>
+                            <field name="can_write"/>
+                            <field name="can_delete"/>
+                            <field name="allowed_fields" optional="hide"/>
+                            <field name="domain_force" optional="hide"/>
+                        </list>
+                    </field>
+                    <p class="text-muted">The raw token is shown only once after generation. Store it in your integration secret manager.</p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_rest_access_form" model="ir.ui.view">
+        <field name="name">ara.rest.api.access.form</field>
+        <field name="model">ara.rest.api.access</field>
+        <field name="arch" type="xml">
+            <form string="API Model Access">
+                <sheet>
+                    <group>
+                        <field name="token_id"/>
+                        <field name="model_id" options="{'no_create': True}"/>
+                    </group>
+                    <group string="Permissions">
+                        <field name="can_read"/>
+                        <field name="can_create"/>
+                        <field name="can_write"/>
+                        <field name="can_delete"/>
+                    </group>
+                    <field name="allowed_fields" placeholder="name,email,phone"/>
+                    <field name="domain_force" placeholder="[('active', '=', True)]"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_rest_token_wizard_form" model="ir.ui.view">
+        <field name="name">ara.rest.api.token.wizard.form</field>
+        <field name="model">ara.rest.api.token.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Copy API Token">
+                <sheet>
+                    <h2>Your new token</h2>
+                    <p class="text-warning">This is the only time the full token will be shown.</p>
+                    <field name="token" readonly="1" widget="CopyClipboardChar"/>
+                    <footer><button name="action_close" type="object" string="Done" class="btn-primary"/></footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_rest_tokens" model="ir.actions.act_window">
+        <field name="name">API Tokens</field>
+        <field name="res_model">ara.rest.api.token</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Create your first API token</p><p>Use a token to connect an external app to selected Odoo models.</p></field>
+    </record>
+</odoo>
