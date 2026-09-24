@@ -1,4 +1,4 @@
-# ARA REST API for Odoo 19
+# ARA REST API for Odoo 18
 
 A secure, token-based REST API for selected Odoo models.
 
